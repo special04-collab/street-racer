@@ -1,0 +1,201 @@
+<!DOCTYPE html><html>
+<head>
+    <title>Street Racer</title><link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#111111">
+<meta name="mobile-web-app-capable" content="yes">
+
+<style>
+    body {
+        margin: 0;
+        background: linear-gradient(#111, #333);
+        color: white;
+        text-align: center;
+        font-family: Arial;
+    }
+
+    h1 {
+        margin: 15px 0;
+    }
+
+    #info {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        font-size: 16px;
+    }
+
+    #road {
+        width: 300px;
+        height: 500px;
+        background: #444;
+        margin: 15px auto;
+        position: relative;
+        overflow: hidden;
+        border-left: 8px solid white;
+        border-right: 8px solid white;
+    }
+
+    .line {
+        position: absolute;
+        width: 8px;
+        height: 80px;
+        background: white;
+        left: 146px;
+    }
+
+    #car {
+        position: absolute;
+        bottom: 20px;
+        left: 125px;
+        font-size: 42px;
+    }
+
+    .enemy {
+        position: absolute;
+        font-size: 42px;
+    }
+
+    #enemy1 {
+        top: 0;
+        left: 40px;
+    }
+
+    #enemy2 {
+        top: -250px;
+        left: 200px;
+    }
+
+    .controls button {
+        background: white;
+        border: none;
+        border-radius: 12px;
+        padding: 15px 25px;
+        font-size: 18px;
+        margin: 5px;
+    }
+
+    #message {
+        font-size: 22px;
+        font-weight: bold;
+    }
+</style>
+
+</head><body><h1>🏎️ STREET RACER</h1><div id="info">
+    <span>🏆 Score: <b id="score">0</b></span>
+    <span>🥇 Best: <b id="best">0</b></span>
+    <span>🚦 Level: <b id="level">1</b></span>
+</div><div id="road"><div class="line" style="top:0;"></div>
+<div class="line" style="top:120px;"></div>
+<div class="line" style="top:240px;"></div>
+<div class="line" style="top:360px;"></div>
+
+<div id="enemy1" class="enemy">🚗</div>
+<div id="enemy2" class="enemy">🚙</div>
+
+<div id="car">🏎️</div>
+
+</div><div class="controls">
+    <button onclick="moveLeft()">⬅️ LEFT</button>
+    <button onclick="moveRight()">RIGHT ➡️</button>
+</div><h2 id="message"></h2><button onclick="restart()">🔄 RESTART</button>
+
+<script>
+
+let car = 125;
+let enemy1 = 0;
+let enemy2 = -250;
+let score = 0;
+let level = 1;
+let speed = 5;
+let gameOver = false;
+
+let best = localStorage.getItem("bestScore") || 0;
+
+document.getElementById("best").textContent = best;
+
+function moveLeft() {
+    if (!gameOver && car > 0) {
+        car -= 25;
+        document.getElementById("car").style.left = car + "px";
+    }
+}
+
+function moveRight() {
+    if (!gameOver && car < 250) {
+        car += 25;
+        document.getElementById("car").style.left = car + "px";
+    }
+}
+
+setInterval(function() {
+
+    if (gameOver) return;
+
+    enemy1 += speed;
+    enemy2 += speed;
+
+    if (enemy1 > 500) {
+        enemy1 = 0;
+        score++;
+    }
+
+    if (enemy2 > 500) {
+        enemy2 = -250;
+        score++;
+    }
+
+    if (score >= 10) {
+        level = 2;
+        speed = 7;
+    }
+
+    if (score >= 20) {
+        level = 3;
+        speed = 9;
+    }
+
+    document.getElementById("enemy1").style.top = enemy1 + "px";
+    document.getElementById("enemy2").style.top = enemy2 + "px";
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("level").textContent = level;
+
+    if (enemy1 > 420 && Math.abs(car - 40) < 45) {
+        endGame();
+    }
+
+    if (enemy2 > 420 && Math.abs(car - 200) < 45) {
+        endGame();
+    }
+
+}, 50);
+
+function endGame() {
+
+    gameOver = true;
+
+    if (score > best) {
+        best = score;
+
+        localStorage.setItem("bestScore", best);
+
+        document.getElementById("best").textContent = best;
+
+        document.getElementById("message").textContent =
+            "🏆 NEW BEST SCORE!";
+    } else {
+        document.getElementById("message").textContent =
+            "💥 GAME OVER!";
+    }
+}
+
+function restart() {
+    location.reload();
+}
+
+</script><script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+}
+</script></body>
+</html>
